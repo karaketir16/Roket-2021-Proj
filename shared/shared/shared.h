@@ -2,10 +2,46 @@
 #define _SHARED_
 
 
+#define MAIN_PAYLOAD PB5 //M3
+#define MAIN_YAY     PB4 //M1
+#define MAIN_ANA     PB3 //M2
+
+
 #define RFM95_CS PB12
 #define RFM95_RST PB13
 #define RFM95_INT PB14
 #define RFM95_DUMMY PB1
+
+
+// #define NANO_1_RFM95_CS 8
+// #define NANO_1_RFM95_RST 7
+// #define NANO_1_RFM95_INT 3
+// #define NANO_1_RFM95_DUMMY 0
+
+// #define NANO_2_RFM95_CS 10
+// #define NANO_2_RFM95_RST 9
+// #define NANO_2_RFM95_INT 2
+// #define NANO_2_RFM95_DUMMY 0
+
+#define NANO_1_RFM95_CS 10
+#define NANO_1_RFM95_RST 9
+#define NANO_1_RFM95_INT 2
+#define NANO_1_RFM95_DUMMY 0
+
+#define NANO_2_RFM95_CS 8
+#define NANO_2_RFM95_RST 7
+#define NANO_2_RFM95_INT 3
+#define NANO_2_RFM95_DUMMY 0
+
+#define RECV1_RFM95_CS PB12
+#define RECV1_RFM95_RST PB13
+#define RECV1_RFM95_INT PB14
+#define RECV1_RFM95_DUMMY PB1
+
+#define RECV2_RFM95_CS PB3
+#define RECV2_RFM95_RST PB4
+#define RECV2_RFM95_INT PB5
+#define RECV2_RFM95_DUMMY PB1
 
 #define FEATHER_RFM95_CS 8
 #define FEATHER_RFM95_RST 4
@@ -14,7 +50,7 @@
 
 //Carrier frequency in MHz. Allowed values range from 868.0 MHz to 915.0 MHz.
 #define RF95_FREQ 877.2
-#define RF95_FREQ_PAYLOAD 879.2
+#define PAYLOAD_RF95_FREQ 879.2
 //%LoRa link bandwidth in kHz. Allowed values are 10.4, 15.6, 20.8, 31.25, 41.7, 62.5, 125, 250 and 500 kHz.
 #define RF95_BW 500
 //%LoRa link spreading factor. Allowed values range from 6 to 12.
@@ -32,17 +68,39 @@
   //Set to 0 to enable automatic gain control (recommended).
 #define RF95_GAIN 0
 
+// #pragma pack(1)
+
+#include <stdint.h>
+
 typedef struct __attribute__((packed)) packet_t
 {
-    int package_number;
+    // uint32_t package_number;
     float altitude;
     float pressure;
     float speed;
     float gps_latitude;
     float gps_longtitude;
     char  gps_fix;
+    char state;
     char checksum;
 } packet;
+
+
+typedef struct __attribute__((packed)) packet_payload_t
+{
+    // uint32_t package_number;
+    float altitude;
+    float pressure;
+    float speed;
+    float gps_latitude;
+    float gps_longtitude;
+    float temp;
+    float acc_x;
+    float acc_y;
+    float acc_z;
+    char  gps_fix;
+    char checksum;
+} packet_payload;
 
 
 enum STATE {
@@ -55,27 +113,8 @@ enum STATE {
   END_STAGE
 };
 
-void fill_checksum(packet *p){
-  p->checksum = 0;
-  char *x = (char*)p;
-  char tmp = 0;
-  for(int i =0; i < (sizeof (packet)); i++){
-    tmp += *x;
-    x++;
-  }
-  p->checksum = tmp;
-}
+void fill_checksum(char *p, int sz);
 
-int check_checksum(packet *p){
-  char check = p->checksum;
-  p->checksum = 0;
-  char *x = (char*)p;
-  char tmp = 0;
-  for(int i =0; i < (sizeof (packet)); i++){
-    tmp += *x;
-    x++;
-  }
-  return tmp == check;
-}
+int check_checksum(char *p, int sz);
 
 #endif //_SHARED_

@@ -4,13 +4,14 @@
 #include <SPI.h>
 
 #include <Adafruit_Sensor.h>  // not used in this demo but required!
-#include <RadioLib.h>
 
 #include "bme.h"
 #include "lsm.h"
-#include "../../shared/shared.h"
+#include "shared.h"
 
-#include "minmea/minmea.h"
+#include "minmea.h"
+
+#include "rf.h"
 
 // #define SIMULATION
 #define PRINT
@@ -42,9 +43,6 @@ void setFlag(void) {
   transmittedFlag = true;
 }
 
-// void BMPsetup();
-// void BMPloop();
-
 static float sim_alt = 0;
 static float sim_mul = 150;
 
@@ -67,10 +65,7 @@ float initial_altitude = 0;
 uint32_t timer = millis();
 uint32_t last_speed_time = millis();
 
-
-
 STATE state = INIT;
-
 
 void setup() {
 
@@ -88,7 +83,7 @@ void setup() {
 
   srand(analogRead(1));
 
-  p1.package_number = 0;
+  // p1.package_number = 0;
   // p1.acc_x = 0;
   // p1.acc_y = 0;
   // p1.acc_z = 0;
@@ -102,8 +97,6 @@ void setup() {
   p1.speed = 0;
   // p1.temperature = 0;
   
-  // return;
-
   // initialize SX1278 with default settings
   Serial.print(F("[SX1278] Initializing ... "));
 
@@ -116,8 +109,19 @@ void setup() {
     while (true);
   }
 
-  gps_setup();
+  if (!lsm_0.begin())
+  {
+    while (1){
+        delay(250);
+        Serial.println("Oops ... unable to initialize the LSM9DS1. Check your wiring!");
+    }
+  } else {
+    Serial.println("Found LSM9DS1 9DOF");
+  }
   
+  setupLsm_0_Sensor();
+
+  gps_setup();
   BMPsetup();
   for(int i =0 ; i < 10 ; i++){
     BMPloop();
@@ -131,19 +135,7 @@ void setup() {
 
   state = STATE::WAIT;
 
-  if (!lsm.begin())
-  {
-    while (1){
-        delay(250);
-        Serial.println("Oops ... unable to initialize the LSM9DS1. Check your wiring!");
-    }
-  }
-  Serial.println("Found LSM9DS1 9DOF");
-  setupLsmSensor();
 
-
-  // BMPsetup();
-  // return;
 
   // set the function that will be called
   // when packet transmission is finished
@@ -155,11 +147,7 @@ void setup() {
   timer = millis();
 }
 
-#define PAYLOAD PB5 //M3
-#define YAY     PB4 //M1
-#define ANA     PB3 //M2
-
-int pins[3] = {YAY, PAYLOAD, ANA};
+int pins[3] = {MAIN_YAY, MAIN_PAYLOAD, MAIN_ANA};
 
 int stages_times[3] = {0,0,0};
 
@@ -186,17 +174,13 @@ void buzzer(int dl){
 }
 
 void loop() {
-
-
-  // Serial.print("Barometer read time: ");
-  // Serial.println(millis() - timer);
-
-  lsm.read();  /* ask it to read in the data */ 
+  
+  lsm_0.read();  /* ask it to read in the data */ 
 
   /* Get a new sensor event */ 
   sensors_event_t a, m, g, temp;
 
-  lsm.getEvent(&a, &m, &g, &temp); 
+  lsm_0.getEvent(&a, &m, &g, &temp); 
 
   // p1.acc_x = a.acceleration.x;
   // p1.acc_y = a.acceleration.y;
@@ -228,15 +212,15 @@ void loop() {
     if( p1.speed <= 100){
       state = STATE::FALLING_1;
       // fire_STAGE(0);
-      buzzer(150);
+      buzzer(75);
     }
     break;
   case STATE::FALLING_1:
     if( p1.altitude < 1500){
       state = STATE::FALLING_2;
       // fire_STAGE(1);
-      buzzer(150);
-      buzzer(150);
+      buzzer(75);
+      buzzer(75);
     }
     check_stages();
     break;
@@ -244,9 +228,9 @@ void loop() {
     if( p1.altitude < 600){
       state = STATE::FALLING_3;
       // fire_STAGE(2);
-      buzzer(150);
-      buzzer(150);
-      buzzer(150);
+      buzzer(75);
+      buzzer(75);
+      buzzer(75);
     }
   check_stages();
     break;
@@ -310,23 +294,23 @@ void loop() {
   Serial.print("Altitude: ");
   Serial.println(p1.altitude);
 
-  // Serial.print("Temp: ");
-  // Serial.println(p1.temperature);
+  Serial.print("Temp: ");
+  Serial.println(bmp.temperature);
 
-  // Serial.print("Acceleration x: ");
-  // Serial.println(p1.acc_x);
+  Serial.print("Acceleration x: ");
+  Serial.println(a.acceleration.x);
 
-  // Serial.print("Acceleration y: ");
-  // Serial.println(p1.acc_y);
+  Serial.print("Acceleration y: ");
+  Serial.println(a.acceleration.y);
 
-  // Serial.print("Acceleration z: ");
-  // Serial.println(p1.acc_z);
+  Serial.print("Acceleration z: ");
+  Serial.println(a.acceleration.z);
 
 #endif
   
 
   // check if the previous transmission finished
-  if(transmittedFlag) {
+  if(transmittedFlag && millis() - timer > 200) {
     // disable the interrupt service routine while
     // processing the data
     enableInterrupt = false;
@@ -353,13 +337,13 @@ void loop() {
       Serial.println(transmissionState);
 
     }
-
-    fill_checksum(&p1);
+    p1.state = state;
+    fill_checksum((char * )&p1, sizeof p1);
     p_send = p1;
     // Serial.printf("press: %f\n accx: %f\n", p_send.pressure, p_send.acc_x);
     int state = radio.startTransmit((byte*) &p_send, sizeof p_send);
     // int state = radio.startTransmit((byte*) &p_send, 10);
-    p1.package_number++;
+    // p1.package_number++;
 
     // we're ready to send more packets,
     // enable interrupt service routine

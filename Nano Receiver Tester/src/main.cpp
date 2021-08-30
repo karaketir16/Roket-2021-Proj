@@ -27,8 +27,8 @@
 
 // #define SIMULATION
 
-RFM95 radio_1 = new Module(RECV1_RFM95_CS, RECV1_RFM95_INT, RECV1_RFM95_RST, RECV1_RFM95_DUMMY);
-RFM95 radio_2 = new Module(RECV2_RFM95_CS, RECV2_RFM95_INT, RECV2_RFM95_RST, RECV2_RFM95_DUMMY);
+RFM95 radio_1 = new Module(NANO_1_RFM95_CS, NANO_1_RFM95_INT, NANO_1_RFM95_RST, NANO_1_RFM95_DUMMY);
+RFM95 radio_2 = new Module(NANO_2_RFM95_CS, NANO_2_RFM95_INT, NANO_2_RFM95_RST, NANO_2_RFM95_DUMMY);
 
 // or using RadioShield
 // https://github.com/jgromes/RadioShield
@@ -69,15 +69,16 @@ void setFlag_2(void) {
   receivedFlag_2 = true;
 }
 
+int state;
+
 void setup() {
-  pinMode(PA12, OUTPUT);
-  digitalWrite(PA12, LOW);
-  // ser();
+
   Serial.begin(38400);
+  
 
   // initialize SX1278 with default settings
-  Serial.print(F("[SX1278] Initializing ... "));
-  int state = radio_1.begin(RF95_FREQ,RF95_BW,RF95_SF,RF95_CR, RF95_SYNC_WORD, RF95_POWER, RF95_PL, RF95_GAIN);
+  Serial.print(F("[RADIO1] Initializing ... "));
+  state = radio_1.begin(PAYLOAD_RF95_FREQ,RF95_BW,RF95_SF,RF95_CR, RF95_SYNC_WORD, RF95_POWER, RF95_PL, RF95_GAIN);
   if (state == ERR_NONE) {
     Serial.println(F("success 1!"));
   } else {
@@ -86,7 +87,8 @@ void setup() {
     while (true);
   }
 
-  int state = radio_2.begin(PAYLOAD_RF95_FREQ,RF95_BW,RF95_SF,RF95_CR, RF95_SYNC_WORD, RF95_POWER, RF95_PL, RF95_GAIN);
+  Serial.print(F("[RADIO2] Initializing ... "));
+  state = radio_2.begin(PAYLOAD_RF95_FREQ,RF95_BW,RF95_SF,RF95_CR, RF95_SYNC_WORD, RF95_POWER, RF95_PL, RF95_GAIN);
   if (state == ERR_NONE) {
     Serial.println(F("success 2!"));
   } else {
@@ -150,6 +152,35 @@ void loop() {
 
     // reset flag
     receivedFlag_1 = false;
+
+    //test
+    {
+          // put module back to listen mode
+      radio_1.readData((byte*) &p_payload, sizeof p_payload);
+
+      Serial.println("[Radio 1] Received packet: ");
+      Serial.print("rssi: ");
+      Serial.println(radio_1.getRSSI()); //dbm
+      // print SNR (Signal-to-Noise Ratio)
+      Serial.print("snr: ");
+      Serial.println(radio_1.getSNR()); //db
+      // Serial.println(F(" dB"));
+
+      // print frequency error
+      Serial.print("frequency_error: ");
+      Serial.println(radio_1.getFrequencyError());
+
+      Serial.println();
+      Serial.println();
+      Serial.println();
+
+      radio_1.startReceive();
+
+      enableInterrupt_1 = true;
+
+      return;
+    }
+
    int state = radio_1.readData((byte*) &p1, sizeof p1);
 
     if (state == ERR_NONE) {
@@ -264,6 +295,35 @@ void loop() {
 
     // reset flag
     receivedFlag_2 = false;
+
+    //test
+    {
+          // put module back to listen mode
+      radio_2.readData((byte*) &p_payload, sizeof p_payload);
+
+      Serial.println("[Radio 2] Received packet: ");
+      Serial.print("rssi: ");
+      Serial.println(radio_2.getRSSI()); //dbm
+      // print SNR (Signal-to-Noise Ratio)
+      Serial.print("snr: ");
+      Serial.println(radio_2.getSNR()); //db
+      // Serial.println(F(" dB"));
+
+      // print frequency error
+      Serial.print("frequency_error: ");
+      Serial.println(radio_2.getFrequencyError());
+
+      Serial.println();
+      Serial.println();
+      Serial.println();
+
+      radio_2.startReceive();
+
+      enableInterrupt_2 = true;
+
+      return;
+    }
+
    int state = radio_2.readData((byte*) &p_payload, sizeof p_payload);
 
     if (state == ERR_NONE) {

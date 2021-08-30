@@ -1,0 +1,31 @@
+{
+	"folders": [
+		{
+			"path": "Roket Main System - Blue Pill"
+		},
+		{
+			"path": "Blue Pill Reveicer"
+		},
+		{
+			"path": "shared"
+		},
+		{
+			"path": "payload"
+		},
+		{
+			"path": "Payload Feather M0"
+		},
+		{
+			"name": "Pico Receiver",
+			"path": "Pico Receiver"
+		},
+		{
+			"name": "Nano Receiver",
+			"path": "Nano Receiver"
+		},
+		{
+			"path": "Nano Receiver Tester"
+		}
+	],
+	"settings": {}
+}

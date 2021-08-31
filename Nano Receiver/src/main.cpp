@@ -199,17 +199,17 @@ void loop()
         Serial.print(",\"altitude\": ");
         Serial.println(p1.altitude);
 
-        // Serial.print(",\"temp\": ");
-        // Serial.println(p1.temperature);
+        Serial.print(",\"speed\": ");
+        Serial.println(p1.speed);
 
         Serial.print(",\"gps_fix\": ");
         Serial.println((int)p1.gps_fix ? "true" : "false");
 
         Serial.print(",\"gps_latitude\": ");
-        Serial.println(p1.gps_latitude, 5);
+        Serial.println(p1.gps_latitude, 7);
 
         Serial.print(",\"gps_longtitude\": ");
-        Serial.println(p1.gps_longtitude, 5);
+        Serial.println(p1.gps_longtitude, 7);
 
         Serial.print(",\"state\": ");
         Serial.println((int)p1.state);
@@ -298,6 +298,9 @@ void loop()
         Serial.print(",\"altitude\": ");
         Serial.println(p_payload.altitude);
 
+        Serial.print(",\"speed\": ");
+        Serial.println(p1.speed);
+
         Serial.print(",\"temp\": ");
         Serial.println(p_payload.temp);
 
@@ -305,10 +308,10 @@ void loop()
         Serial.println((int)p_payload.gps_fix ? "true" : "false");
 
         Serial.print(",\"gps_latitude\": ");
-        Serial.println(p_payload.gps_latitude, 5);
+        Serial.println(p_payload.gps_latitude, 7);
 
         Serial.print(",\"gps_longtitude\": ");
-        Serial.println(p_payload.gps_longtitude, 5);
+        Serial.println(p_payload.gps_longtitude, 7);
 
         Serial.print(",\"acc_x\": ");
         Serial.println(p_payload.acc_x);
@@ -318,6 +321,8 @@ void loop()
 
         Serial.print(",\"acc_z\": ");
         Serial.println(p_payload.acc_z);
+
+        
 
         // print RSSI (Received Signal Strength Indicator)
         Serial.print(F(",\"rssi\":"));

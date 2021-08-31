@@ -82,7 +82,8 @@ typedef struct __attribute__((packed)) packet_t
     float gps_longtitude;
     char  gps_fix;
     char state;
-    char checksum;
+    char checksum_1;
+    char checksum_2;
 } packet;
 
 
@@ -99,7 +100,8 @@ typedef struct __attribute__((packed)) packet_payload_t
     float acc_y;
     float acc_z;
     char  gps_fix;
-    char checksum;
+    char checksum_1;
+    char checksum_2;
 } packet_payload;
 
 

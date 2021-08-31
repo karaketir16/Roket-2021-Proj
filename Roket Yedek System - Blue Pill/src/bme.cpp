@@ -8,9 +8,6 @@
 
 
 
-extern Adafruit_BMP3XX bmp;
-
-
 void BMPsetup() {
   // Serial.begin(115200);
   // while (!Serial);
@@ -30,11 +27,31 @@ void BMPsetup() {
   bmp.setOutputDataRate(BMP3_ODR_50_HZ);
 }
 
+void BMEsetup() {
+
+  if (! bme.begin()) {  // hardware SPI mode  
+  //if (! bmp.begin_SPI(BMP_CS, BMP_SCK, BMP_MISO, BMP_MOSI)) {  // software SPI mode
+    Serial.println("Could not find a valid BMP3 sensor, check wiring!");
+    while (1);
+  }
+
+  bme.setSampling(Adafruit_BME280::MODE_NORMAL,
+                    Adafruit_BME280::SAMPLING_X2,  // temperature
+                    Adafruit_BME280::SAMPLING_X8, // pressure
+                    Adafruit_BME280::SAMPLING_X1,  // humidity
+                    Adafruit_BME280::FILTER_X8,
+                    Adafruit_BME280::STANDBY_MS_0_5 );
+}
+
+
+
 void BMPloop() {
-
-
   if (! bmp.performReading()) {
     Serial.print("BME: Failed to perform reading :(\n");
     return;
   }
+}
+
+void BMEloop() {
+  bme.readTemperature();
 }

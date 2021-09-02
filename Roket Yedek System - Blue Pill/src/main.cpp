@@ -14,7 +14,7 @@
 #include "rf.h"
 
 // #define SIMULATION
-#define PRINT
+// #define PRINT
 
 HardwareSerial GPSSerial(USART2);
 
@@ -245,7 +245,7 @@ void loop() {
 
   lsm.getEvent(&a, &m, &g, &temp); 
 
-  // p1.acc_x = a.acceleration.x;
+  p1.abs_vert_acc = abs(a.acceleration.x);
   // p1.acc_y = a.acceleration.y;
   // p1.acc_z = a.acceleration.z;
 
@@ -272,7 +272,8 @@ void loop() {
     }
     break;
   case STATE::RISING_STAGE:
-    if( p1.speed <= 20){
+    // if( p1.speed <= 20){ // instead of speed, use accelarion data
+    if( p1.abs_vert_acc < 1){
       state = STATE::FALLING_1;
       if( ! MAIN_LIVE)
         fire_STAGE(0);
@@ -375,7 +376,30 @@ void loop() {
   Serial.print("Acceleration z: ");
   Serial.println(a.acceleration.z);
 
+
+  Serial.print("Pitch: ");
+  Serial.println(getPitch(a.acceleration.z, a.acceleration.y, a.acceleration.x));
+
+  Serial.print("Roll: ");
+  Serial.println(getRoll(a.acceleration.z, a.acceleration.y, a.acceleration.x));
+
+  Serial.print("Heading: ");
+  Serial.println(getHeading(m.magnetic.z, m.magnetic.y));
+
+  Serial.print("Mag x: ");
+  Serial.println(m.magnetic.x);
+
+  Serial.print("Mag y: ");
+  Serial.println(m.magnetic.y);
+
+  Serial.print("Mag z: ");
+  Serial.println(m.magnetic.z);
+  Serial.println();
 #endif
+
+
+
+
 
   // check if the previous transmission finished
   if(transmittedFlag && millis() - timer > 500) {
@@ -438,6 +462,10 @@ void loop() {
       if (check_checksum((char *)&p1_receive, sizeof p1_receive))
       {
         last_received_time = millis();
+        if(p1_receive.state == STATE::END_STAGE){
+          state = STATE::END_STAGE;
+          MAIN_LIVE = false;
+        }
         Serial.println("RECEIVED");
       }
       else

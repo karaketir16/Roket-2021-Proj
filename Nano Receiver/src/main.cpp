@@ -214,8 +214,8 @@ void loop()
         Serial.print(",\"state\": ");
         Serial.println((int)p1.state);
 
-        // Serial.print(",\"acc_x\": ");
-        // Serial.println(p1.acc_x);
+        Serial.print(",\"abs_vert_acc\": ");
+        Serial.println(p1.abs_vert_acc);
 
         // Serial.print(",\"acc_y\": ");
         // Serial.println(p1.acc_y);
@@ -299,7 +299,7 @@ void loop()
         Serial.println(p_payload.altitude);
 
         Serial.print(",\"speed\": ");
-        Serial.println(p1.speed);
+        Serial.println(p_payload.speed);
 
         Serial.print(",\"temp\": ");
         Serial.println(p_payload.temp);

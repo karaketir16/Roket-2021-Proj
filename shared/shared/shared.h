@@ -12,26 +12,29 @@
 #define RFM95_INT PB14
 #define RFM95_DUMMY PB1
 
+// #define SWTCH 
 
-// #define NANO_1_RFM95_CS 8
-// #define NANO_1_RFM95_RST 7
-// #define NANO_1_RFM95_INT 3
-// #define NANO_1_RFM95_DUMMY 0
+#ifdef SWTCH
+  #define NANO_1_RFM95_CS 8
+  #define NANO_1_RFM95_RST 7
+  #define NANO_1_RFM95_INT 3
+  #define NANO_1_RFM95_DUMMY 0
 
-// #define NANO_2_RFM95_CS 10
-// #define NANO_2_RFM95_RST 9
-// #define NANO_2_RFM95_INT 2
-// #define NANO_2_RFM95_DUMMY 0
+  #define NANO_2_RFM95_CS 10
+  #define NANO_2_RFM95_RST 9
+  #define NANO_2_RFM95_INT 2
+  #define NANO_2_RFM95_DUMMY 0
+#else
+  #define NANO_1_RFM95_CS 10
+  #define NANO_1_RFM95_RST 9
+  #define NANO_1_RFM95_INT 2
+  #define NANO_1_RFM95_DUMMY 0
 
-#define NANO_1_RFM95_CS 10
-#define NANO_1_RFM95_RST 9
-#define NANO_1_RFM95_INT 2
-#define NANO_1_RFM95_DUMMY 0
-
-#define NANO_2_RFM95_CS 8
-#define NANO_2_RFM95_RST 7
-#define NANO_2_RFM95_INT 3
-#define NANO_2_RFM95_DUMMY 0
+  #define NANO_2_RFM95_CS 8
+  #define NANO_2_RFM95_RST 7
+  #define NANO_2_RFM95_INT 3
+  #define NANO_2_RFM95_DUMMY 0
+#endif
 
 #define RECV1_RFM95_CS PB12
 #define RECV1_RFM95_RST PB13
@@ -49,7 +52,7 @@
 #define FEATHER_RFM95_DUMMY 0
 
 //Carrier frequency in MHz. Allowed values range from 868.0 MHz to 915.0 MHz.
-#define RF95_FREQ 877.2
+#define RF95_FREQ 911.2
 #define PAYLOAD_RF95_FREQ 879.2
 //%LoRa link bandwidth in kHz. Allowed values are 10.4, 15.6, 20.8, 31.25, 41.7, 62.5, 125, 250 and 500 kHz.
 #define RF95_BW 500
@@ -80,6 +83,7 @@ typedef struct __attribute__((packed)) packet_t
     float speed;
     float gps_latitude;
     float gps_longtitude;
+    float abs_vert_acc;
     char  gps_fix;
     char state;
     char checksum_1;

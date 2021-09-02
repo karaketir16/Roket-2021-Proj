@@ -14,7 +14,7 @@
 #include "rf.h"
 
 // #define SIMULATION
-#define PRINT
+// #define PRINT
 
 HardwareSerial GPSSerial(USART2);
 
@@ -190,7 +190,7 @@ void loop() {
 
   lsm_0.getEvent(&a, &m, &g, &temp); 
 
-  // p1.acc_x = a.acceleration.x;
+  p1.abs_vert_acc = abs(a.acceleration.x);
   // p1.acc_y = a.acceleration.y;
   // p1.acc_z = a.acceleration.z;
 
@@ -218,7 +218,7 @@ void loop() {
     }
     break;
   case STATE::RISING_STAGE:
-    if( p1.speed <= 20){
+    if( p1.speed <= 3){
       state = STATE::FALLING_1;
       fire_STAGE(0);
       buzzer(75);

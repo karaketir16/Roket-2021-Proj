@@ -9,4 +9,8 @@ extern Adafruit_LSM9DS0 lsm_0;
 void setupLsmSensor();
 void setupLsm_0_Sensor();
 
+float getPitch(float ax, float ay, float az);
+float getRoll(float ax, float ay, float az);
+float getHeading(float mx, float my);
+
 #endif

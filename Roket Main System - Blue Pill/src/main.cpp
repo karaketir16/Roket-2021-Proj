@@ -74,18 +74,27 @@ uint32_t last_speed_time = millis();
 
 STATE state = INIT;
 
+int pins[3] = {MAIN_YAY, MAIN_PAYLOAD, MAIN_ANA};
+int stages_times[3] = {0,0,0};
+
+
 void setup() {
+
+  for(int i =0; i < 3; i++){
+      pinMode(pins[i], OUTPUT);
+  }
 
   pinMode(LED_GREEN, OUTPUT);
   digitalWrite(LED_GREEN, HIGH);
 
   // digitalWrite(LED_GREEN, 0);
 
+  
 
   Serial.begin(38400);
   Serial.println("Booting");
 
-  delay(1000);
+  delay(500);
 
   pinMode(PA12, OUTPUT);
 
@@ -161,25 +170,21 @@ void setup() {
   timer = millis();
 }
 
-int pins[3] = {MAIN_YAY, MAIN_PAYLOAD, MAIN_ANA};
-
-int stages_times[3] = {0,0,0};
-
-
 void check_stages(){
   for(int i =0;i < 3;i++){
-    if( millis() - stages_times[i] > 2000){
+    if( millis() - stages_times[i] > 3000){
       digitalWrite(pins[i], LOW);
     }
   }
 }
 void fire_STAGE(int i){
-  pinMode(pins[i], OUTPUT);
   digitalWrite(pins[i], HIGH);   
   stages_times[i] = millis();
 }
 
 bool led = false;
+
+int counter = 0;
 
 void loop() {
   
@@ -218,11 +223,18 @@ void loop() {
     }
     break;
   case STATE::RISING_STAGE:
-    if( p1.speed <= 3){
+    if( p1.speed <= 10){
+      counter++;
+    } else {
+      counter = 0;
+    }
+
+    if(counter == 5){
       state = STATE::FALLING_1;
       fire_STAGE(0);
       buzzer(75);
     }
+
     break;
   case STATE::FALLING_1:
     if( p1.altitude < 1600){

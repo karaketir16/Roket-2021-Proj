@@ -3,7 +3,7 @@
 #include <Wire.h>
 #include <SPI.h>
 
-#include <Adafruit_Sensor.h>  // not used in this demo but required!
+#include <Adafruit_Sensor.h> // not used in this demo but required!
 
 #include "bme.h"
 #include "lsm.h"
@@ -22,7 +22,6 @@ HardwareSerial GPSSerial(USART2);
 
 Adafruit_BMP3XX bmp;
 Adafruit_BME280 bme(BMP_CS);
-
 
 bool MAIN_LIVE = true;
 // or using RadioShield
@@ -53,7 +52,6 @@ void setFlag_1(void)
   receivedFlag_1 = true;
 }
 
-
 packet p1;
 packet p_send;
 
@@ -67,9 +65,11 @@ volatile bool enableInterrupt = true;
 // is transmitted by the module
 // IMPORTANT: this function MUST be 'void' type
 //            and MUST NOT have any arguments!
-void setFlag(void) {
+void setFlag(void)
+{
   // check if the interrupt is enabled
-  if(!enableInterrupt) {
+  if (!enableInterrupt)
+  {
     return;
   }
 
@@ -77,7 +77,8 @@ void setFlag(void) {
   transmittedFlag = true;
 }
 
-void buzzer(int dl){
+void buzzer(int dl)
+{
   digitalWrite(PA12, HIGH);
   delay(dl);
   digitalWrite(PA12, LOW);
@@ -87,9 +88,11 @@ void buzzer(int dl){
 static float sim_alt = 0;
 static float sim_mul = 75;
 
-float simulation_altitude(){
+float simulation_altitude()
+{
   sim_alt += sim_mul;
-  if(sim_alt > 3000){
+  if (sim_alt > 3000)
+  {
     sim_mul = -10;
   }
   if (sim_alt < 0)
@@ -110,15 +113,24 @@ STATE state = INIT;
 
 int last_received_time = millis();
 
+int pins[3] = {MAIN_YAY, MAIN_PAYLOAD, MAIN_ANA};
+int stages_times[3] = {0, 0, 0};
 
-void setup() {
+void setup()
+{
+
+  for (int i = 0; i < 3; i++)
+  {
+    pinMode(pins[i], OUTPUT);
+  }
+
   pinMode(LED_GREEN, OUTPUT);
   digitalWrite(LED_GREEN, HIGH);
 
   Serial.begin(38400);
   Serial.println("Booting");
 
-  delay(1000);
+  delay(500);
 
   pinMode(PA12, OUTPUT);
 
@@ -139,50 +151,58 @@ void setup() {
   p1.pressure = 0;
   p1.speed = 0;
   // p1.temperature = 0;
-  
+
   // initialize SX1278 with default settings
   Serial.print(F("[SX1278] Initializing ... "));
 
-  int radio_state = radio.begin(RF95_FREQ,RF95_BW,RF95_SF,RF95_CR, RF95_SYNC_WORD, RF95_POWER, RF95_PL, RF95_GAIN);
-  if (radio_state == ERR_NONE) {
+  int radio_state = radio.begin(RF95_FREQ, RF95_BW, RF95_SF, RF95_CR, RF95_SYNC_WORD, RF95_POWER, RF95_PL, RF95_GAIN);
+  if (radio_state == ERR_NONE)
+  {
     Serial.println(F("success!"));
-  } else {
+  }
+  else
+  {
     Serial.print(F("failed, code "));
     Serial.println(radio_state);
-    while (true);
+    while (true)
+      ;
   }
 
   if (!lsm.begin())
   {
-    while (1){
-        delay(250);
-        Serial.println("Oops ... unable to initialize the LSM9DS1. Check your wiring!");
+    while (1)
+    {
+      delay(250);
+      Serial.println("Oops ... unable to initialize the LSM9DS1. Check your wiring!");
     }
-  } else {
+  }
+  else
+  {
     Serial.println("Found LSM9DS1 9DOF");
   }
-  
+
   setupLsmSensor();
 
   gps_setup();
   BMEsetup();
-  for(int i =0 ; i < 10 ; i++){
+  for (int i = 0; i < 10; i++)
+  {
     bme.readPressure();
   }
 
   float tmp = 0;
-  for(int i =0 ; i < 10 ; i++){
+  for (int i = 0; i < 10; i++)
+  {
     tmp += bme.readAltitude(SEALEVELPRESSURE_HPA);
   }
   initial_altitude = tmp / 10;
 
   state = STATE::WAIT;
 
-
-  for(int i = 0;i<2;i++){
+  for (int i = 0; i < 2; i++)
+  {
     buzzer(500);
   }
-
 
   // set the function that will be called
   // when packet transmission is finished
@@ -209,41 +229,41 @@ void setup() {
     while (true)
       ;
   }
-  
+
   last_speed_time = millis();
   timer = millis();
   last_received_time = millis();
 }
 
-int pins[3] = {MAIN_YAY, MAIN_PAYLOAD, MAIN_ANA};
-
-int stages_times[3] = {0,0,0};
-
-
-
-void check_stages(){
-  for(int i =0;i < 3;i++){
-    if( millis() - stages_times[i] > 2000){
+void check_stages()
+{
+  for (int i = 0; i < 3; i++)
+  {
+    if (millis() - stages_times[i] > 3000)
+    {
       digitalWrite(pins[i], LOW);
     }
   }
 }
-void fire_STAGE(int i){
-  pinMode(pins[i], OUTPUT);
-  digitalWrite(pins[i], HIGH);   
+void fire_STAGE(int i)
+{
+  digitalWrite(pins[i], HIGH);
   stages_times[i] = millis();
 }
 
 bool led = false;
 
-void loop() {
-  
-  lsm.read();  /* ask it to read in the data */ 
+int counter = 0;
 
-  /* Get a new sensor event */ 
+void loop()
+{
+
+  lsm.read(); /* ask it to read in the data */
+
+  /* Get a new sensor event */
   sensors_event_t a, m, g, temp;
 
-  lsm.getEvent(&a, &m, &g, &temp); 
+  lsm.getEvent(&a, &m, &g, &temp);
 
   p1.abs_vert_acc = abs(a.acceleration.x);
   // p1.acc_y = a.acceleration.y;
@@ -252,11 +272,11 @@ void loop() {
   float old_alt = p1.altitude;
   p1.altitude = bme.readAltitude(SEALEVELPRESSURE_HPA) - initial_altitude;
 
-  #ifdef SIMULATION
+#ifdef SIMULATION
   p1.altitude = simulation_altitude();
-  #endif
+#endif
 
-  p1.speed = (p1.altitude - old_alt) / ( (millis() - last_speed_time) / 1000.0 );
+  p1.speed = (p1.altitude - old_alt) / ((millis() - last_speed_time) / 1000.0);
   last_speed_time = millis();
 
   p1.pressure = bme.readPressure() / 100.0;
@@ -267,23 +287,37 @@ void loop() {
   case STATE::INIT:
     break;
   case STATE::WAIT:
-    if(p1.altitude > 200){
+    if (p1.altitude > 200)
+    {
       state = STATE::RISING_STAGE;
     }
     break;
   case STATE::RISING_STAGE:
     // if( p1.speed <= 20){ // instead of speed, use accelarion data
-    if( p1.abs_vert_acc < 1){
+
+    if (p1.abs_vert_acc <= 1)
+    {
+      counter++;
+    }
+    else
+    {
+      counter = 0;
+    }
+
+    if (counter == 5)
+    {
       state = STATE::FALLING_1;
-      if( ! MAIN_LIVE)
+      if (!MAIN_LIVE)
         fire_STAGE(0);
       buzzer(75);
     }
+
     break;
   case STATE::FALLING_1:
-    if( p1.altitude < 1600){
+    if (p1.altitude < 1600)
+    {
       state = STATE::FALLING_2;
-      if( ! MAIN_LIVE)
+      if (!MAIN_LIVE)
         fire_STAGE(1);
       buzzer(75);
       buzzer(75);
@@ -291,18 +325,20 @@ void loop() {
     check_stages();
     break;
   case STATE::FALLING_2:
-    if( p1.altitude < 700){
+    if (p1.altitude < 700)
+    {
       state = STATE::FALLING_3;
-      if( ! MAIN_LIVE)
+      if (!MAIN_LIVE)
         fire_STAGE(2);
       buzzer(75);
       buzzer(75);
       buzzer(75);
     }
-  check_stages();
+    check_stages();
     break;
   case STATE::FALLING_3:
-    if( p1.altitude < 20){
+    if (p1.altitude < 20)
+    {
       state = STATE::END_STAGE;
     }
     check_stages();
@@ -317,30 +353,34 @@ void loop() {
 
   String gps_data = gps_read();
 
-  const char* line = gps_data.c_str();
+  const char *line = gps_data.c_str();
 
   int r = minmea_sentence_id(line, false);
 
-  switch (r) {
-              case MINMEA_SENTENCE_RMC: {
-                  struct minmea_sentence_rmc frame;
-                  if (minmea_parse_rmc(&frame, line)) {
+  switch (r)
+  {
+  case MINMEA_SENTENCE_RMC:
+  {
+    struct minmea_sentence_rmc frame;
+    if (minmea_parse_rmc(&frame, line))
+    {
 
-                      auto fix_check = minmea_tocoord(&frame.latitude);
-                      p1.gps_fix = (fix_check == fix_check);
-                      if(p1.gps_fix) {
-                        p1.gps_latitude = minmea_tocoord(&frame.latitude);
-                        p1.gps_longtitude = minmea_tocoord(&frame.longitude);
-                      }
-                  }
-                  else {
-                    p1.gps_fix = 0;
-                  }
-              } break;
-  default:
-      ;
+      auto fix_check = minmea_tocoord(&frame.latitude);
+      p1.gps_fix = (fix_check == fix_check);
+      if (p1.gps_fix)
+      {
+        p1.gps_latitude = minmea_tocoord(&frame.latitude);
+        p1.gps_longtitude = minmea_tocoord(&frame.longitude);
+      }
+    }
+    else
+    {
+      p1.gps_fix = 0;
+    }
   }
-
+  break;
+  default:;
+  }
 
 #ifdef PRINT
   Serial.print("GPS: ");
@@ -376,7 +416,6 @@ void loop() {
   Serial.print("Acceleration z: ");
   Serial.println(a.acceleration.z);
 
-
   Serial.print("Pitch: ");
   Serial.println(getPitch(a.acceleration.z, a.acceleration.y, a.acceleration.x));
 
@@ -397,13 +436,10 @@ void loop() {
   Serial.println();
 #endif
 
-
-
-
-
   // check if the previous transmission finished
-  if(transmittedFlag && millis() - timer > 500) {
-    
+  if (transmittedFlag && millis() - timer > 500)
+  {
+
     // disable the interrupt service routine while
     // processing the data
     enableInterrupt = false;
@@ -411,7 +447,8 @@ void loop() {
     // reset flag
     transmittedFlag = false;
 
-    if (transmissionState == ERR_NONE) {
+    if (transmissionState == ERR_NONE)
+    {
       // packet was successfully sent
       led ^= 1;
       digitalWrite(LED_GREEN, led);
@@ -421,21 +458,21 @@ void loop() {
       Serial.print("Time: ");
       Serial.println(millis() - timer);
       timer = millis();
-      
+
       // NOTE: when using interrupt-driven transmit method,
       //       it is not possible to automatically measure
       //       transmission data rate using getDataRate()
-
-    } else {
+    }
+    else
+    {
       Serial.print(F("failed, code "));
       Serial.println(transmissionState);
-
     }
     p1.state = state + 10;
-    fill_checksum((char * )&p1, sizeof p1);
+    fill_checksum((char *)&p1, sizeof p1);
     p_send = p1;
     // Serial.printf("press: %f\n accx: %f\n", p_send.pressure, p_send.acc_x);
-    radio.startTransmit((byte*) &p_send, sizeof p_send);
+    radio.startTransmit((byte *)&p_send, sizeof p_send);
     // int state = radio.startTransmit((byte*) &p_send, 10);
     // p1.package_number++;
 
@@ -443,7 +480,6 @@ void loop() {
     // enable interrupt service routine
     enableInterrupt = true;
   }
-
 
   if (receivedFlag_1)
   {
@@ -462,7 +498,8 @@ void loop() {
       if (check_checksum((char *)&p1_receive, sizeof p1_receive))
       {
         last_received_time = millis();
-        if(p1_receive.state == STATE::END_STAGE){
+        if (p1_receive.state == STATE::END_STAGE)
+        {
           state = STATE::END_STAGE;
           MAIN_LIVE = false;
         }
@@ -493,13 +530,13 @@ void loop() {
     enableInterrupt_1 = true;
   }
 
-  if(MAIN_LIVE && millis() - last_received_time > 3000){
+  if (MAIN_LIVE && millis() - last_received_time > 1000)
+  {
     radio.setDio0Action(setFlag);
     MAIN_LIVE = false;
     receivedFlag_1 = false;
     transmittedFlag = true;
     digitalWrite(LED_GREEN, LOW);
     buzzer(150);
-  } 
-
+  }
 }

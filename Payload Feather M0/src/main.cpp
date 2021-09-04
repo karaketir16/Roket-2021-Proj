@@ -47,10 +47,10 @@ float degree = 57.295;
 void setupSensor()
 {
   // 1.) Set the accelerometer range
-  lsm.setupAccel(lsm.LSM9DS1_ACCELRANGE_2G);
+  // lsm.setupAccel(lsm.LSM9DS1_ACCELRANGE_2G);
   //  lsm.setupAccel(lsm.LSM9DS1_ACCELRANGE_4G);
   //  lsm.setupAccel(lsm.LSM9DS1_ACCELRANGE_8G);
-  //  lsm.setupAccel(lsm.LSM9DS1_ACCELRANGE_16G);
+  lsm.setupAccel(lsm.LSM9DS1_ACCELRANGE_16G);
   //
   // 2.) Set the magnetometer sensitivity
   lsm.setupMag(lsm.LSM9DS1_MAGGAIN_4GAUSS);
@@ -100,7 +100,7 @@ bool led = false;
 void setup()
 {
   delay(200);
-    pinMode(13, OUTPUT);
+  pinMode(13, OUTPUT);
   digitalWrite(13, led);
 
   Serial.begin(115200);
@@ -120,8 +120,6 @@ void setup()
     while (true)
       ;
   }
-
-  
 
   Serial.println("Adafruit BMP388 / BMP390 test");
   Serial.println("LSM9DS1 data read demo");
@@ -174,13 +172,14 @@ void setup()
   bmp.setIIRFilterCoeff(BMP3_IIR_FILTER_COEFF_3);
   bmp.setOutputDataRate(BMP3_ODR_50_HZ);
 
-    
-  for(int i =0 ; i < 10 ; i++){
+  for (int i = 0; i < 10; i++)
+  {
     bmp.performReading();
   }
 
   float tmp = 0;
-  for(int i =0 ; i < 10 ; i++){
+  for (int i = 0; i < 10; i++)
+  {
     tmp += bmp.readAltitude(SEALEVELPRESSURE_HPA);
   }
   initial_altitude = tmp / 10;
@@ -195,13 +194,13 @@ void setup()
   timer = millis();
 }
 
-float latLong(float a){
-    int degree = a / 100;
-    a -= degree * 100;
-    float res = a/60;
-    return degree + res;
+float latLong(float a)
+{
+  int degree = a / 100;
+  a -= degree * 100;
+  float res = a / 60;
+  return degree + res;
 }
-
 
 void loop()
 {
@@ -224,135 +223,114 @@ void loop()
   }
 
   // approximately every 2 seconds or so, print out the current stats
-  if (millis() - timer > 2000)
+  if (true && millis() - timer > 200)
   {
-    timer = millis(); // reset the timer
-    led ^= 1;
-    digitalWrite(13, led);
 
-    Serial.print("\nTime: ");
-    if (GPS.hour < 10)
-    {
-      Serial.print('0');
-    }
-    Serial.print(GPS.hour, DEC);
-    Serial.print(':');
-    if (GPS.minute < 10)
-    {
-      Serial.print('0');
-    }
-    Serial.print(GPS.minute, DEC);
-    Serial.print(':');
-    if (GPS.seconds < 10)
-    {
-      Serial.print('0');
-    }
-    Serial.print(GPS.seconds, DEC);
-    Serial.print('.');
-    if (GPS.milliseconds < 10)
-    {
-      Serial.print("00");
-    }
-    else if (GPS.milliseconds > 9 && GPS.milliseconds < 100)
-    {
-      Serial.print("0");
-    }
-    Serial.println(GPS.milliseconds);
-    Serial.print("Date: ");
-    Serial.print(GPS.day, DEC);
-    Serial.print('/');
-    Serial.print(GPS.month, DEC);
-    Serial.print("/20");
-    Serial.println(GPS.year, DEC);
-    Serial.print("Fix: ");
-    Serial.print((int)GPS.fix);
-    Serial.print(" quality: ");
-    Serial.println((int)GPS.fixquality);
+    // Serial.print("\nTime: ");
+    // if (GPS.hour < 10)
+    // {
+    //   Serial.print('0');
+    // }
+    // Serial.print(GPS.hour, DEC);
+    // Serial.print(':');
+    // if (GPS.minute < 10)
+    // {
+    //   Serial.print('0');
+    // }
+    // Serial.print(GPS.minute, DEC);
+    // Serial.print(':');
+    // if (GPS.seconds < 10)
+    // {
+    //   Serial.print('0');
+    // }
+    // Serial.print(GPS.seconds, DEC);
+    // Serial.print('.');
+    // if (GPS.milliseconds < 10)
+    // {
+    //   Serial.print("00");
+    // }
+    // else if (GPS.milliseconds > 9 && GPS.milliseconds < 100)
+    // {
+    //   Serial.print("0");
+    // }
+    // Serial.println(GPS.milliseconds);
+    // Serial.print("Date: ");
+    // Serial.print(GPS.day, DEC);
+    // Serial.print('/');
+    // Serial.print(GPS.month, DEC);
+    // Serial.print("/20");
+    // Serial.println(GPS.year, DEC);
+    // Serial.print("Fix: ");
+    // Serial.print((int)GPS.fix);
+    // Serial.print(" quality: ");
+    // Serial.println((int)GPS.fixquality);
     if (GPS.fix)
     {
-      Serial.print("Location: ");
-      Serial.print(GPS.latitude, 4);
-      Serial.print(GPS.lat);
-      Serial.print(", ");
-      Serial.print(GPS.longitude, 4);
-      Serial.println(GPS.lon);
-      Serial.print("Speed (knots): ");
-      Serial.println(GPS.speed);
-      Serial.print("Angle: ");
-      Serial.println(GPS.angle);
-      Serial.print("Altitude: ");
-      Serial.println(GPS.altitude);
-      Serial.print("Satellites: ");
-      Serial.println((int)GPS.satellites);
-
-      p1.gps_latitude = latLong(GPS.latitude);
-      p1.gps_longtitude = latLong(GPS.longitude);
+      // Serial.print("Location: ");
+      // Serial.print(GPS.latitude, 4);
+      // Serial.print(GPS.lat);
+      // Serial.print(", ");
+      // Serial.print(GPS.longitude, 4);
+      // Serial.println(GPS.lon);
+      // Serial.print("Speed (knots): ");
+      // Serial.println(GPS.speed);
+      // Serial.print("Angle: ");
+      // Serial.println(GPS.angle);
+      // Serial.print("Altitude: ");
+      // Serial.println(GPS.altitude);
+      // Serial.print("Satellites: ");
+      // Serial.println((int)GPS.satellites);
     }
 
-    lsm.read(); /* ask it to read in the data */
+    // Serial.print("Accel X: ");
+    // Serial.print(a.acceleration.x);
+    // Serial.print(" m/s^2");
 
-    /* Get a new sensor event */
-    sensors_event_t a, m, g, temp;
+    // Serial.print("\tY: ");
+    // Serial.print(a.acceleration.y);
+    // Serial.print(" m/s^2 ");
+    // Serial.print("\tZ: ");
+    // Serial.print(a.acceleration.z);
+    // Serial.println(" m/s^2 ");
 
-    lsm.getEvent(&a, &m, &g, &temp);
+    // Serial.print("Mag X: ");
+    // Serial.print(m.magnetic.x);
+    // Serial.print(" uT");
+    // Serial.print("\tY: ");
+    // Serial.print(m.magnetic.y);
+    // Serial.print(" uT");
+    // Serial.print("\tZ: ");
+    // Serial.print(m.magnetic.z);
+    // Serial.println(" uT");
 
-    Serial.print("Accel X: ");
-    Serial.print(a.acceleration.x);
-    Serial.print(" m/s^2");
-
-    Serial.print("\tY: ");
-    Serial.print(a.acceleration.y);
-    Serial.print(" m/s^2 ");
-    Serial.print("\tZ: ");
-    Serial.print(a.acceleration.z);
-    Serial.println(" m/s^2 ");
-
-    Serial.print("Mag X: ");
-    Serial.print(m.magnetic.x);
-    Serial.print(" uT");
-    Serial.print("\tY: ");
-    Serial.print(m.magnetic.y);
-    Serial.print(" uT");
-    Serial.print("\tZ: ");
-    Serial.print(m.magnetic.z);
-    Serial.println(" uT");
-
-    Serial.print("Gyro X: ");
-    Serial.print(g.gyro.x * degree);
-    Serial.print(" deg");
-    Serial.print("\tY: ");
-    Serial.print(g.gyro.y * degree);
-    Serial.print(" deg");
-    Serial.print("\tZ: ");
-    Serial.print(g.gyro.z * degree);
-    Serial.println(" deg");
-
-    p1.acc_x = a.acceleration.x;
-    p1.acc_y = a.acceleration.y;
-    p1.acc_z = a.acceleration.z;
+    // Serial.print("Gyro X: ");
+    // Serial.print(g.gyro.x * degree);
+    // Serial.print(" deg");
+    // Serial.print("\tY: ");
+    // Serial.print(g.gyro.y * degree);
+    // Serial.print(" deg");
+    // Serial.print("\tZ: ");
+    // Serial.print(g.gyro.z * degree);
+    // Serial.println(" deg");
 
     if (!bmp.performReading())
     {
       Serial.println("Failed to perform reading :(");
       // return;
     }
-    Serial.print("Temperature = ");
-    Serial.print(bmp.temperature);
-    Serial.println(" *C");
+    // Serial.print("Temperature = ");
+    // Serial.print(bmp.temperature);
+    // Serial.println(" *C");
 
-    Serial.print("Pressure = ");
-    Serial.print(bmp.pressure / 100.0);
-    Serial.println(" hPa");
+    // Serial.print("Pressure = ");
+    // Serial.print(bmp.pressure / 100.0);
+    // Serial.println(" hPa");
 
-    Serial.print("Approx. Altitude = ");
-    Serial.print(bmp.readAltitude(SEALEVELPRESSURE_HPA));
-    Serial.println(" m");
+    // Serial.print("Approx. Altitude = ");
+    // Serial.print(bmp.readAltitude(SEALEVELPRESSURE_HPA));
+    // Serial.println(" m");
 
-    Serial.println();
-
-    p1.pressure = bmp.pressure / 100;
-    p1.temp = bmp.temperature;
-    p1.altitude = bmp.readAltitude(SEALEVELPRESSURE_HPA) - initial_altitude;
+    // Serial.println();
 
     // check if the previous transmission finished
     if (transmittedFlag)
@@ -363,6 +341,39 @@ void loop()
 
       // reset flag
       transmittedFlag = false;
+
+      timer = millis(); // reset the timer
+      led ^= 1;
+      digitalWrite(13, led);
+
+      if (GPS.fix)
+      {
+        p1.gps_latitude = latLong(GPS.latitude);
+        p1.gps_longtitude = latLong(GPS.longitude);
+      }
+
+      lsm.read(); /* ask it to read in the data */
+
+      /* Get a new sensor event */
+      sensors_event_t a, m, g, temp;
+
+      lsm.getEvent(&a, &m, &g, &temp);
+
+      p1.acc_x = a.acceleration.x;
+      p1.acc_y = a.acceleration.y;
+      p1.acc_z = a.acceleration.z;
+
+      if (!bmp.performReading())
+      {
+        Serial.println("Failed to perform reading :(");
+        // return;
+      }
+      else
+      {
+        p1.pressure = bmp.pressure / 100;
+        p1.temp = bmp.temperature;
+        p1.altitude = bmp.readAltitude(SEALEVELPRESSURE_HPA) - initial_altitude;
+      }
 
       if (transmissionState == ERR_NONE)
       {
@@ -390,14 +401,17 @@ void loop()
       // }
 
       fill_checksum((char *)&p1, sizeof p1);
-      
+
       p_send = p1;
 
-      if( check_checksum((char *) &p_send, sizeof p_send)){
+      if (check_checksum((char *)&p_send, sizeof p_send))
+      {
         Serial.print("Size: ");
         Serial.println(sizeof p_send);
         Serial.println("fill checksum OK");
-      } else {
+      }
+      else
+      {
         Serial.println("fill checksum FAIL");
       }
       // Serial.printf("press: %f\n accx: %f\n", p_send.pressure, p_send.acc_x);

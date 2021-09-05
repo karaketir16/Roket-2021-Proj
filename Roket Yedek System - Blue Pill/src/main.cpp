@@ -122,6 +122,7 @@ void setup()
   for (int i = 0; i < 3; i++)
   {
     pinMode(pins[i], OUTPUT);
+    digitalWrite(pins[i], LOW);
   }
 
   pinMode(LED_GREEN, OUTPUT);

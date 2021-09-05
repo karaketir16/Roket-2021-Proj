@@ -82,6 +82,7 @@ void setup() {
 
   for(int i =0; i < 3; i++){
       pinMode(pins[i], OUTPUT);
+      digitalWrite(pins[i], LOW);
   }
 
   pinMode(LED_GREEN, OUTPUT);
@@ -89,7 +90,6 @@ void setup() {
 
   // digitalWrite(LED_GREEN, 0);
 
-  
 
   Serial.begin(38400);
   Serial.println("Booting");
